@@ -1,0 +1,203 @@
+<macros>
+  
+  <define-macro name="import-unit" filename="">
+    <import type="unit" filename="[[filename]]" />
+  </define-macro>
+  
+  <define-macro name="import-lecture" filename="">
+    <import type="lecture" filename="[[filename]]" />
+  </define-macro>
+
+  <define-macro name="import-markdown" filename="">
+    <import type="markdown" filename="[[filename]]" />
+  </define-macro>
+
+  <define-macro name="import-html" filename="">
+    <import type="html" filename="[[filename]]" />
+  </define-macro>
+  
+  <define-macro name="import-page" filename="">
+    <import type="page" filename="[[filename]]" />
+  </define-macro>
+
+  <define-macro name="blue">
+    <span style="color: #00f"><b><contents/></b></span>
+  </define-macro>
+  
+  <define-macro name="def" desc="">
+    <div style="margin-top: 40px; margin-bottom: 40px">
+      <div style="color: #fff; background-color: #c1a7df; padding: 15px 15px 15px 15px; font-size: 20px">
+        <b>Definition: [[desc]]</b>
+      </div>
+      <div style="background-color: #eee; padding: 15px 15px 15px 15px;">
+        <contents />
+      </div>
+    </div>
+  </define-macro>
+
+  <define-macro name="lean">
+    <html>
+      <pre>
+        <contents/>
+      </pre>
+    </html>
+  </define-macro>
+
+  <define-macro name="theorem" desc="">
+    <html>       
+      <div style="margin-top: 40px; margin-bottom: 40px">
+        <div style="color: #fff; background-color: #dfc1a7; padding: 15px 15px 15px 15px; font-size: 20px">
+          <b>Theorem: [[desc]]</b>
+        </div>
+        <div style="background-color: #eee; padding: 15px 15px 15px 15px;">
+          <contents />
+        </div>
+      </div>
+    </html>
+  </define-macro>
+
+  <define-macro name="theorem-div" desc="">
+    <div style="margin-top: 40px; margin-bottom: 40px">
+      <div style="color: #fff; background-color: #dfc1a7; padding: 15px 15px 15px 15px; font-size: 20px">
+        <b>Theorem: [[desc]]</b>
+      </div>
+      <div style="background-color: #eee; padding: 15px 15px 15px 15px;">
+        <contents />
+      </div>
+    </div>
+  </define-macro>
+
+  <define-macro name="box" color="">
+    <div style="background-color: [[color]]; padding: 10px 10px 10px 10px; margin: 40px;">
+      <div>
+        <contents />
+      </div>
+    </div>
+  </define-macro>
+
+  <define-macro name="box-outline">
+    <div style="border-style: solid; border-color: white; border-width: 1px;">
+      <contents />
+    </div>
+  </define-macro>
+  
+  <define-macro name="review" >
+    <html> <box color="#f00">REVIEW</box> </html>
+  </define-macro>
+
+  <define-macro name="wts">
+    <span><u>Want to show:</u></span>
+  </define-macro>
+  
+  <define-macro name="center-box">
+    <div style="text-align: center;">
+      <pad-box size="20px">
+        <contents/>
+      </pad-box>
+    </div>
+  </define-macro>
+
+  
+  <define-macro name="pad-box" size="">
+    <div style="padding: [[size]] [[size]] [[size]] [[size]]; border-top-radius: 3px">
+      <contents/>
+    </div>
+  </define-macro>
+  
+  <define-macro name="proof" desc="">
+    <div style="margin-top: 30px; margin-bottom: 30px; filter: drop-shadow(0px 0px 6px #aaa)">
+      <box-outline>
+        <div style="color: #fff; background-color: #aaa; font-size: 20px"> 
+          <pad-box size="15px"> <b>Proof:</b> [[desc]] </pad-box>
+        </div>
+        <div style="background-color: #eaeaea">
+          <pad-box size="15px"> <contents/> </pad-box>
+        </div>
+      </box-outline>
+    </div>
+  </define-macro>
+
+  <define-macro name="prob" desc="">
+    <html>
+      <div>
+        <p style="font-weight: 700; display: block; color: #fff; background: #6ab0de; padding: 6px 12px; margin: -12px -12px 12px;">
+          Problem
+        </p>
+      </div>
+    </html>
+  </define-macro>
+
+  <define-macro name="vid1" desc="" start="" end=""> <vid name="[[desc]]" id="LY7YmuDbuW0" start="[[start]]" end="[[end]]" /> </define-macro>
+  <define-macro name="vid2" desc="" start="" end=""> <vid name="[[desc]]" id="9_xG0AGRa-w" start="[[start]]" end="[[end]]" /> </define-macro>
+  
+  <define-macro name="true" scope="problem" >
+    <choice correct="true"><contents/></choice>    
+  </define-macro>
+  
+  <define-macro name="false" scope="problem" >
+    <choice correct="false"><contents/></choice>
+  </define-macro>
+
+  <define-macro name="proof-lean-copy">    
+    <proof-lean filename="lean/unit1/demorgan1.lean"/>
+  </define-macro>
+
+  <define-macro name="bp">
+    <div style="margin-bottom: 10px">
+      <div style="margin-top: 15px">
+        <span style="margin-right: 10px">☕ </span>
+        <span> <contents/> </span>
+        <br/>
+      </div>
+    </div>
+  </define-macro>
+
+  
+  <define-macro name="mchoice-group">
+    <choicegroup type="MultipleChoice">
+      <contents/>
+    </choicegroup>
+  </define-macro>
+
+  <define-macro name="bu">
+    <b> <u> <contents/> </u> </b>
+  </define-macro>
+  
+  <define-macro name="problem">
+    <contents/>
+  </define-macro>
+  
+  <define-macro name="mchoice" display_name="">
+    <problem display_name="[[display_name]]">
+      <multiplechoiceresponse>
+        <contents/>
+      </multiplechoiceresponse>
+    </problem>
+  </define-macro>
+
+  <define-macro name="f">
+    <choice correct="false"> <contents/> </choice>
+  </define-macro>
+  
+  <define-macro name="t">
+    <choice correct="true"> <contents/> </choice>
+  </define-macro>
+
+  <define-macro name="标">
+    <div> It works! 标 </div>
+  </define-macro>
+
+  <define-macro name="quote" who="" from="" cite="">
+    <div>
+      <blockquote cite="[[cite]]">
+        “<contents/>”
+        <footer>—[[who]], <cite>[[from]]</cite></footer>
+      </blockquote>
+    </div>
+  </define-macro>
+
+  <define-macro name="star" n="">
+    <div> `(\star_[[n]])` <i><contents/></i> </div>      
+  </define-macro>
+  
+</macros>

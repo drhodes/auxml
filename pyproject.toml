@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "auxml"
+version = "0.1.0"
+dependencies = [ "lxml", "pytest", "pudb" ]
+requires-python = ">=3.8"
+authors = [ {name = "Derek A. Rhodes", email = "physci@gmail.com"} ]
+description = "An author friendly macro system for XML"
+readme = "README.md"
+license = {file = "LICENSE.txt"}
+keywords = ["xml", "macro"]
+classifiers = [
+ "Development Status :: 2 - Pre-Alpha",
+ "Programming Language :: Python"
+]
+
+
+[project.scripts]
+auxml = "auxml:main"
