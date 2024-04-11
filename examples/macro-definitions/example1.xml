@@ -1,0 +1,12 @@
+<macros>
+
+  <define-macro name="blue">
+    <span style="color: #00f">
+      <b>
+        <contents/>
+      </b>
+    </span>
+  </define-macro>
+  
+</macros>
+  

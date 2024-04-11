@@ -14,10 +14,10 @@ class CmdLine:
     def parse_arguments(self):
         parser = argparse.ArgumentParser(description="Your script description here.")
 
-        parser.add_argument('--build-dir', required=True, help='specify output target build directory')
-        parser.add_argument('--page', required=False, help='preview a specific unit')
-        parser.add_argument('--target', required=True, choices=['web'])
-        
+        parser.add_argument('--build-dir', required=True, help='specify output target build directory') 
+        parser.add_argument('--macros', required=True, help='specify the input macro XML file')
+        parser.add_argument('--infile', required=True, help='specify the input XML file')
+       
         parser.add_argument(
             "-v",
             "--verbose",
@@ -26,6 +26,7 @@ class CmdLine:
             action="store_const",
             const=logging.INFO,
         )
+        
         parser.add_argument(
             "-vv",
             "--very-verbose",
@@ -43,27 +44,16 @@ class CmdLine:
     def setup_logging(self, loglevel):
         logformat = "[%(asctime)s] %(levelname)s:%(name)s:%(message)s"
         logging.basicConfig(level=loglevel, stream=sys.stdout, format=logformat, datefmt="%Y-%m-%d %H:%M:%S")
-        
-    def static_path(self):
-        return self.args.static
 
+    def infile(self):
+        return self.args.infile
+    
+    def macros(self):
+        return self.args.macros
+        
     def build_dir_path(self):
         return self.args.build_dir
     
-    def build_target(self):
-        return self.args.target
-
-    def unit(self):
-        return self.args.unit
-    
-    def units(self):
-        return self.args.units
-
-    def vert(self):
-        return self.args.vert
-
-    def output_filename(self):
-        return self.args.output 
     
 cmdline = CmdLine()
 

@@ -1,78 +1,100 @@
-# Python project template
 
-This is a template repository for any Python project that comes with the following dev tools:
+Processing Phases
 
-* `ruff`: identifies many errors and style issues (`flake8`, `isort`, `pyupgrade`)
-* `black`: auto-formats code
+Phase1, ensure user document is well-formed xml
+Prase2, expand the macros.
 
-Those checks are run as pre-commit hooks using the `pre-commit` library.
 
-It includes `pytest` for testing plus the `pytest-cov` plugin to measure coverage.
 
-The checks and tests are all run using Github actions on every pull request and merge to main.
+# Phase 2: Expanding Macros
 
-This repository is setup for Python 3.11. To change the version:
-1. Change the `image` argument in `.devcontainer/devcontainer.json` (see [https://github.com/devcontainers/images/tree/main/src/python](https://github.com/devcontainers/images/tree/main/src/python#configuration) for a list of pre-built Docker images)
-1. Change the config options in `.precommit-config.yaml`
-1. Change the version number in `.github/workflows/python.yaml`
+There are some distinct cases for a macro call which need to be handled carefully.
 
-## Development instructions
+1) Text Argument
+2) Single Element Argument
+3) Mixed Element Argument
 
-## With devcontainer
 
-This repository comes with a devcontainer (a Dockerized Python environment). If you open it in Codespaces, it should automatically initialize the devcontainer.
+Text arguement, where the macro call has no child elements and only a
+text element. The macro call has form: `<blue> arg </blue>`
 
-Locally, you can open it in VS Code with the Dev Containers extension installed.
-
-## Without devcontainer
-
-If you can't or don't want to use the devcontainer, then you should first create a virtual environment:
-
-```
-python3 -m venv .venv
-source .venv/bin/activate
+```xml
+<blue>
+    this sentence is a text arguemnt 
+</blue>
 ```
 
-Then install the dev tools and pre-commit hooks:
+Element argument, where the macro call has a single child element
 
-```
-python3 -m pip install --user -r requirements-dev.txt
-pre-commit install
-```
-
-## Adding code and tests
-
-This repository starts with a very simple `main.py` and a test for it at `tests/main_test.py`.
-You'll want to replace that with your own code, and you'll probably want to add additional files
-as your code grows in complexity.
-
-When you're ready to run tests, run:
-
-```
-python3 -m pytest
+```xml
+<blue> 
+    <div>
+        this div is an element argument
+    </div> 
+</blue>
 ```
 
-# File breakdown
+The element may have tail text associated with it
 
-Here's a short explanation of each file/folder in this template:
+```xml
+<blue> 
+    <div>
+        this div is an element argument
+    </div> 
+    
+    tail text
+</blue>
+```
 
-* `.devcontainer`: Folder containing files used for setting up a devcontainer
-  * `devcontainer.json`: File configuring the devcontainer, includes VS Code settings
-* `.github`: Folder for Github-specific files and folders
-  * `workflows`: Folder containing Github actions config files
-    * `python.yaml`: File configuring Github action that runs tools and tests
-* `tests`: Folder containing Python tests
-  * `main_test.py`: File with pytest-style tests of main.py
-* `.gitignore`: File describing what file patterns Git should never track
-* `.pre-commit-config.yaml`: File listing all the pre-commit hooks and args
-* `main.py`: The main (and currently only) Python file for the program
-* `pyproject.toml`: File configuring most of the Python dev tools
-* `README.md`: You're reading it!
-* `requirements-dev.txt`: File listing all PyPi packages required for development
-* `requirements.txt`: File listing all PyPi packages required for production
+Mixed argument, where the macro call element has a text node some
+elements that may have tails.
 
-For a longer explanation, read [this blog post](http://blog.pamelafox.org/2022/09/how-i-setup-python-project.html).
+```xml
+<blue> 
+    node text
+    
+    <div>
+        this div is an element argument
+    </div> 
 
-# 🔎 Found an issue or have an idea for improvement?
+    <div>
+        this div is the second element
+    </div> 
 
-Help me make this template repository better by letting us know and opening an issue!
+    node tail
+</blue>
+```
+
+
+# Example 1) Text Argument.
+
+```xml
+<blue> this sentence is a text arguement </blue>
+```
+
+Suppose the macro associate with <blue> ... </blue> is
+
+```xml
+<define-macro name="blue"> <span class="blue-css-rule"> <contents/> </span> </define-macro>
+```
+
+The macro definition has a special key element called `<contents/>`
+which is replaced by the contents of the macro call. In this example that is 
+
+```
+<blue> this sentence is a text argument </blue>
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+```
+
+So expanding the macro will result in:
+
+```xml
+<span class="blue-css-rule">  this sentence is a text argument  </span> 
+                            !^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^!
+```
+
+Where the white space is preserved. Notice that the argument becomes
+the text node of the `<span>` element, which is the parent of the
+`<content/>` node of the macro definition.
+
+

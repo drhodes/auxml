@@ -22,10 +22,23 @@ install: .installed
 	${PY} -m pip install -e .
 	touch .installed	
 
+run: install
+	${VENV} auxml \
+	--macros ./examples/macro-definitions/example1.xml \
+	--infile ./examples/auxml-src/example1.xml \
+	--build-dir /tmp/testout
+
+.PHONY: reinstall
+reinstall: 
+	${PY} -m pip install -e .
 
 .PHONY: test 
 test: venv install
 	${PY} -m pytest -s
+
+.PHONY: watch
+watch: venv install
+	${VENV} ptw .
 
 .PHONY: clean-python
 clean-python: 
@@ -34,7 +47,6 @@ clean-python:
 .PHONY: clean-venv
 clean-venv: 
 	rm -rf venv
-
 
 .PHONY: clean-all
 clean-all: clean-python clean-venv
