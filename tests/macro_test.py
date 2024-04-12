@@ -73,15 +73,16 @@ def test_macro_man_expand():
     
 
  
-MacroDefRed = '''<define-macro name="red"><span style="color: #00f"><b><contents/></b></span></define-macro>'''
-MacroCallRed = '''<red>stuff</red>'''
-RedExpect = etree.fromstring('''<span style="color: #00f"><b>stuff</b></span>''')
+MacroDefText_Based = '''<define-macro name="text_based"><span style="color: #00f"><b> text <contents/> tail </b></span></define-macro>'''
+MacroCallText_Based = '''<text_based>stuff</text_based>'''
+Text_BasedExpect = etree.fromstring('''<span style="color: #00f"><b> text stuff tail </b></span>''')
 
-def test_macro_def_red():
-    mac = MacroDef(etree.fromstring(MacroDefRed))
-    call = MacroCall(etree.fromstring(MacroCallRed))
+def test_macro_def_text_based():
+    mac = MacroDef(etree.fromstring(MacroDefText_Based))
+    call = MacroCall(etree.fromstring(MacroCallText_Based))
     el = mac.expand(call)
-    assert eq_trees(el, RedExpect)
+    # import pudb;pudb.set_trace()
+    assert eq_trees(el, Text_BasedExpect)
 
 
 
@@ -132,5 +133,50 @@ def test_macro_empty():
     call = MacroCall(etree.fromstring(mcall))
     el = mac.expand(call)
     assert eq_trees(el, exp)
+    
+    
+def test_macro_empty2():
+    mdef = '''<define-macro name="mac"><asdf></asdf></define-macro>'''
+    mcall = '''<mac/>'''
+    exp = etree.fromstring('''<asdf></asdf>''')
+    
+    mac = MacroDef(etree.fromstring(mdef))
+    call = MacroCall(etree.fromstring(mcall))
+    el = mac.expand(call)
+    assert eq_trees(el, exp)
+    
+    
+def test_tail2():
+    mdef = '''<define-macro name="mac"><asdf><contents/></asdf></define-macro>'''
+    mcall = '''<mac> asdf </mac>'''
+    exp = etree.fromstring('''<asdf> asdf </asdf>''')
+    
+    mac = MacroDef(etree.fromstring(mdef))
+    call = MacroCall(etree.fromstring(mcall))
+    el = mac.expand(call)
+    assert eq_trees(el, exp)
+    
+    
+def test_tail3():
+    mdef = '''<define-macro name="mac"><asdf><contents/> asdf </asdf></define-macro>'''
+    mcall = '''<mac> asdf </mac>'''
+    exp = etree.fromstring('''<asdf> asdf  asdf </asdf>''')
+    
+    mac = MacroDef(etree.fromstring(mdef))
+    call = MacroCall(etree.fromstring(mcall))
+    el = mac.expand(call)
+    assert eq_trees(el, exp)
+    
+# def test_nested1():
+#     mdef = '''<define-macro name="mac"><asdf><contents/></asdf></define-macro>'''
+#     mcall = '''<mac><mac>asdf</mac></mac>'''
+#     exp = etree.fromstring('''<asdf><asdf>asdf</asdf></asdf>''')
+    
+#     mac = MacroDef(etree.fromstring(mdef))
+#     call = MacroCall(etree.fromstring(mcall))
+#     el = mac.expand(call)
+
+#     mm = MacroManager()
+#     assert eq_trees(el, exp)
     
     

@@ -25,4 +25,5 @@ class MacroManager():
                 call = MacroCall(e)
                 exp = self.expand_all(mac.expand(call))
                 el.replace(e, exp)
+                
         return el

@@ -11,6 +11,12 @@ An element based macro call, it operates on <text>stuff</text>
 <blue><text>stuff</text></blue> 
 '''
 
+def tail(el):
+    if el.tail:
+        return el.tail
+    else:
+        return ""
+
 class MacroDef():
     def __init__(self, el):
         self.el = el
@@ -28,13 +34,13 @@ class MacroDef():
         return deepcopy(self.el.getchildren()[0])
     
     def expand_element_based(self, mcall):
-        newel = deepcopy(self.el.getchildren()[0])
+        body = self.get_body()
         
-        for content in newel.findall(".//contents"):
+        for content in body.findall(".//contents"):
             if mcall.has_children():
                 inner = mcall.inner()
                 content.getparent().replace(content, inner)
-                return newel
+                return body
             else:
                 raise Exception("need to handle text based macro call")
         raise Exception("dead code")
@@ -43,9 +49,12 @@ class MacroDef():
         body = self.get_body()
         for content in body.findall(".//contents"):
             par = content.getparent()
-            # what if content has a tail?
             par.remove(content)
-            par.text = mcall.text()
+            if par.text:
+                par.text += mcall.text() + tail(content)
+            else:
+                par.text = mcall.text() + tail(content)
+                
         return body
     
     def expand_mixed(self, mcall):
@@ -72,22 +81,24 @@ class MacroDef():
 
     def expand_empty(self, mcall):
         return self.get_body()
+
     
     def expand(self, mcall):
         self.ensure_names_match(mcall)
-        
+        mac = None
         if mcall.is_element_based():
-            return self.expand_element_based(mcall)
+            mac = self.expand_element_based(mcall)
         elif mcall.is_text_based():
-            return self.expand_text_based(mcall)        
+            mac = self.expand_text_based(mcall)        
         elif mcall.is_mixed():
-            return self.expand_mixed(mcall)
+            mac = self.expand_mixed(mcall)
         elif mcall.is_empty(): 
-            return self.expand_empty(mcall)
-           
+            mac = self.expand_empty(mcall)           
         else:            
             raise Exception("Unhandled expansion, this is a bug")
-
+        return mac
+        
+        
 class MacroCall:    
     def __init__(self, el):
         self.el = el
