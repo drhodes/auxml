@@ -71,3 +71,66 @@ def test_macro_man_expand():
     mm = MacroManager()
     mm.load_macro_file("./examples/macro-definitions/pb100-macros.xml")
     
+
+ 
+MacroDefRed = '''<define-macro name="red"><span style="color: #00f"><b><contents/></b></span></define-macro>'''
+MacroCallRed = '''<red>stuff</red>'''
+RedExpect = etree.fromstring('''<span style="color: #00f"><b>stuff</b></span>''')
+
+def test_macro_def_red():
+    mac = MacroDef(etree.fromstring(MacroDefRed))
+    call = MacroCall(etree.fromstring(MacroCallRed))
+    el = mac.expand(call)
+    assert eq_trees(el, RedExpect)
+
+
+
+MacroDefGreen = '''<define-macro name="green"><span style="color: #00f"><b><contents/></b></span></define-macro>'''
+MacroCallGreen = '''<green> stuff <inner>text</inner> tail </green>'''
+GreenExpect = etree.fromstring('''<span style="color: #00f"><b> stuff <inner>text</inner> tail </b></span>''')
+
+def test_macro_def_green():
+    mac = MacroDef(etree.fromstring(MacroDefGreen))
+    call = MacroCall(etree.fromstring(MacroCallGreen))
+    el = mac.expand(call)
+    #import pudb;pudb.set_trace()
+    assert eq_trees(el, GreenExpect)
+
+
+
+MacroDefPurple = '''<define-macro name="purple"><span style="color: #f0f"><b>AAA<contents/>BBB</b></span></define-macro>'''
+MacroCallPurple = '''<purple> stuff <inner>text</inner> tail </purple>'''
+PurpleExpect = etree.fromstring('''<span style="color: #f0f"><b>AAA stuff <inner>text</inner> tail BBB</b></span>''')
+
+def test_macro_def_purple():
+    mac = MacroDef(etree.fromstring(MacroDefPurple))
+    call = MacroCall(etree.fromstring(MacroCallPurple))
+    el = mac.expand(call)
+    # import pudb;pudb.set_trace()
+    assert eq_trees(el, PurpleExpect)
+    
+
+
+MacroDefA1 = '''<define-macro name="A1"><span><b>A<contents/>B</b><b>A<contents/>B</b></span></define-macro>'''
+MacroCallA1 = '''<A1> stuff <inner>text</inner> tail </A1>'''
+A1Expect = etree.fromstring('''<span><b>A stuff <inner>text</inner> tail B</b><b>A stuff <inner>text</inner> tail B</b></span>''')
+
+def test_macro_def_A1():
+    mac = MacroDef(etree.fromstring(MacroDefA1))
+    call = MacroCall(etree.fromstring(MacroCallA1))
+    el = mac.expand(call)
+    # import pudb;pudb.set_trace()
+    assert eq_trees(el, A1Expect)
+    
+
+def test_macro_empty():
+    mdef = '''<define-macro name="mac"><asdf></asdf></define-macro>'''
+    mcall = '''<mac></mac>'''
+    exp = etree.fromstring('''<asdf></asdf>''')
+    
+    mac = MacroDef(etree.fromstring(mdef))
+    call = MacroCall(etree.fromstring(mcall))
+    el = mac.expand(call)
+    assert eq_trees(el, exp)
+    
+    

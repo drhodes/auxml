@@ -21,9 +21,13 @@ class MacroDef():
 
     def ensure_names_match(self, mcall):
         assert mcall.name() == self.name
-        
+
+    def get_body(self):
+        # the following line assumes the macro body only has one element.
+        # TODO let macros definition have text and elements.
+        return deepcopy(self.el.getchildren()[0])
+    
     def expand_element_based(self, mcall):
-        self.ensure_names_match(mcall)        
         newel = deepcopy(self.el.getchildren()[0])
         
         for content in newel.findall(".//contents"):
@@ -34,14 +38,55 @@ class MacroDef():
             else:
                 raise Exception("need to handle text based macro call")
         raise Exception("dead code")
-
+    
     def expand_text_based(self, mcall):
-        pass
+        body = self.get_body()
+        for content in body.findall(".//contents"):
+            par = content.getparent()
+            # what if content has a tail?
+            par.remove(content)
+            par.text = mcall.text()
+        return body
+    
+    def expand_mixed(self, mcall):
+        body = self.get_body()
+        for content in body.findall(".//contents"):
+            par = content.getparent()            
+            par.remove(content)
+            if par.text:
+                par.text += mcall.text()
+            else: 
+                par.text = mcall.text()
+            for e in mcall.getchildren():
+                par.append(deepcopy(e))
+                
+            if content.tail is None: continue            
+            # append the tail of <content/> to the tail of the last element in par.
+            
+            last = par.getchildren()[-1]
+            if last.tail == None:
+                last.tail = content.tail
+            else:
+                last.tail += content.tail
+        return body
+
+    def expand_empty(self, mcall):
+        return self.get_body()
     
     def expand(self, mcall):
-        if mcall.is_element_based():
-            return self.expand_element_based(mcall)        
+        self.ensure_names_match(mcall)
         
+        if mcall.is_element_based():
+            return self.expand_element_based(mcall)
+        elif mcall.is_text_based():
+            return self.expand_text_based(mcall)        
+        elif mcall.is_mixed():
+            return self.expand_mixed(mcall)
+        elif mcall.is_empty(): 
+            return self.expand_empty(mcall)
+           
+        else:            
+            raise Exception("Unhandled expansion, this is a bug")
 
 class MacroCall:    
     def __init__(self, el):
@@ -50,8 +95,14 @@ class MacroCall:
     def name(self):
         return self.el.tag
 
+    def text(self):
+        return self.el.text
+
+    def getchildren(self):
+        return self.el.getchildren()
+    
     def number_children(self):
-        return len(self.el.getchildren())
+        return len(self.getchildren())
     
     def has_children(self):
         return self.number_children() > 0
@@ -72,7 +123,13 @@ class MacroCall:
         return self.has_one_child() and self.has_no_text()
 
     def is_text_based(self):
-        return self.has_no_children() and self.has_text();
+        return self.has_no_children() and self.has_text()
+
+    def is_mixed(self):
+        return self.has_children() and self.has_text()
+
+    def is_empty(self):
+        return self.has_no_children() and self.has_no_text()
     
     def inner(self):
         if self.has_children():
