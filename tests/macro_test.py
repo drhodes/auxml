@@ -21,22 +21,22 @@ def test_macro_def_blue():
     assert eq_trees(el, BlueExpect)
 
 def test_tree_diff1():
-    s = "<div>asdf</div>"
+    s = "<div>div</div>"
     t = etree.fromstring(s)
     differ = Differ()
     diff = list(differ.diff(t,t))
     assert diff == []
 
 def test_tree_diff2():
-    t1 = etree.fromstring("<div>asdf</div>")
+    t1 = etree.fromstring("<div>div</div>")
     t2 = etree.fromstring("<div>zxcv</div>")
     differ = Differ()
     diff = list(differ.diff(t1,t2))
     assert len(diff) > 0
 
 def test_tree_diff3():
-    t1 = etree.fromstring("<div>asdf</div>")
-    t2 = etree.fromstring("<div>asdf </div>")
+    t1 = etree.fromstring("<div>div</div>")
+    t2 = etree.fromstring("<div>div </div>")
     differ = Differ()
     diff = list(differ.diff(t1,t2))
     assert len(diff) > 0
@@ -52,13 +52,13 @@ def equal_up_to_whitespace(e1, e2):
     return True
     
 def test_up_to_whitespace1():
-    t1 = etree.fromstring("<div>  asdf</div>")
-    t2 = etree.fromstring("<div>asdf </div>")
+    t1 = etree.fromstring("<div>  div</div>")
+    t2 = etree.fromstring("<div>div </div>")
     assert equal_up_to_whitespace(t1, t2)
 
 def test_up_to_whitespace2():
-    t1 = etree.fromstring("<div>  asdf      </div>")
-    t2 = etree.fromstring("<div> asdf   </div>")
+    t1 = etree.fromstring("<div>  div      </div>")
+    t2 = etree.fromstring("<div> div   </div>")
     assert equal_up_to_whitespace(t1, t2)
 
     
@@ -83,7 +83,6 @@ def test_macro_def_text_based():
     el = mac.expand(call)
     # import pudb;pudb.set_trace()
     assert eq_trees(el, Text_BasedExpect)
-
 
 
 MacroDefGreen = '''<define-macro name="green"><span style="color: #00f"><b><contents/></b></span></define-macro>'''
@@ -125,9 +124,9 @@ def test_macro_def_A1():
     
 
 def test_macro_empty():
-    mdef = '''<define-macro name="mac"><asdf></asdf></define-macro>'''
+    mdef = '''<define-macro name="mac"><div></div></define-macro>'''
     mcall = '''<mac></mac>'''
-    exp = etree.fromstring('''<asdf></asdf>''')
+    exp = etree.fromstring('''<div></div>''')
     
     mac = MacroDef(etree.fromstring(mdef))
     call = MacroCall(etree.fromstring(mcall))
@@ -136,9 +135,9 @@ def test_macro_empty():
     
     
 def test_macro_empty2():
-    mdef = '''<define-macro name="mac"><asdf></asdf></define-macro>'''
+    mdef = '''<define-macro name="mac"><div></div></define-macro>'''
     mcall = '''<mac/>'''
-    exp = etree.fromstring('''<asdf></asdf>''')
+    exp = etree.fromstring('''<div></div>''')
     
     mac = MacroDef(etree.fromstring(mdef))
     call = MacroCall(etree.fromstring(mcall))
@@ -147,9 +146,9 @@ def test_macro_empty2():
     
     
 def test_tail2():
-    mdef = '''<define-macro name="mac"><asdf><contents/></asdf></define-macro>'''
-    mcall = '''<mac> asdf </mac>'''
-    exp = etree.fromstring('''<asdf> asdf </asdf>''')
+    mdef = '''<define-macro name="mac"><div><contents/></div></define-macro>'''
+    mcall = '''<mac> div </mac>'''
+    exp = etree.fromstring('''<div> div </div>''')
     
     mac = MacroDef(etree.fromstring(mdef))
     call = MacroCall(etree.fromstring(mcall))
@@ -158,25 +157,60 @@ def test_tail2():
     
     
 def test_tail3():
-    mdef = '''<define-macro name="mac"><asdf><contents/> asdf </asdf></define-macro>'''
-    mcall = '''<mac> asdf </mac>'''
-    exp = etree.fromstring('''<asdf> asdf  asdf </asdf>''')
+    mdef = '''<define-macro name="mac"><div><contents/> div </div></define-macro>'''
+    mcall = '''<mac> div </mac>'''
+    exp = etree.fromstring('''<div> div  div </div>''')
     
     mac = MacroDef(etree.fromstring(mdef))
     call = MacroCall(etree.fromstring(mcall))
     el = mac.expand(call)
     assert eq_trees(el, exp)
-    
-# def test_nested1():
-#     mdef = '''<define-macro name="mac"><asdf><contents/></asdf></define-macro>'''
-#     mcall = '''<mac><mac>asdf</mac></mac>'''
-#     exp = etree.fromstring('''<asdf><asdf>asdf</asdf></asdf>''')
-    
-#     mac = MacroDef(etree.fromstring(mdef))
-#     call = MacroCall(etree.fromstring(mcall))
-#     el = mac.expand(call)
 
-#     mm = MacroManager()
-#     assert eq_trees(el, exp)
+   
+def test_nested1():
+    mdef = '''<define-macro name="mac"><div><contents/></div></define-macro>'''
+    mcall = '''<mac><mac>ASDF</mac></mac>'''
+    exp = etree.fromstring('''<div><div>ASDF</div></div>''')
     
+    mac = MacroDef(etree.fromstring(mdef))
+    mm = MacroManager()
+    mm.add_macro_def(mac)
+    
+    call = etree.fromstring(mcall)
+    el = mm.expand_all(call)
+    assert eq_trees(el, exp)
+    
+    
+def test_macro_empty_mm():
+    mac  = etree.fromstring('''<define-macro name="mac"><div></div></define-macro>''')
+    call = etree.fromstring('''<mac/>''')
+    exp  = etree.fromstring('''<div></div>''')
+    
+    mm = MacroManager()
+    mm.add_macro_def(MacroDef(mac))
+    el = mm.expand_all(call)
+    assert eq_trees(el, exp)
+
+
+def with_mm(mac_str, call_str, expect_str):
+    mac  = etree.fromstring(mac_str)
+    call = etree.fromstring(call_str)
+    exp  = etree.fromstring(expect_str)
+    mm = MacroManager()
+    mm.add_macro_def(MacroDef(mac))
+    el = mm.expand_all(call)
+    assert eq_trees(el, exp)
+    
+    
+def test_with_mm():
+    m = '<define-macro name="mac"><div></div></define-macro>'
+    c = '<mac/>'
+    e = '<div></div>'
+    with_mm(m, c, e)
+    
+# def test_mac_attrib1():
+#     m = '<define-macro name="square" vars="color, size"><div><div class="square"> is [[size]] meters wide and is the color [[color]]</div></div></define-macro>'
+#     c = '<mac/>'
+#     e = '<div></div>'
+#     with_mm(m, c, e)
     
