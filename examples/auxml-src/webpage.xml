@@ -1,0 +1,17 @@
+
+<div>
+  <lecture title="best page in the universe!">
+    <stuff>
+      <p>
+        asdf <bb>Hello</bb> this text is missing because of the "bb" tags
+      </p>
+    </stuff>
+    <markdown>
+      ##The three main goals of this course are:
+      asdf
+      - Gain experience with proofs.
+      - Have fun proving statements about real numbers, functions, and limits.
+      - Formalize proofs in the Lean proof assistant.. (it's more addictive than sudoku - really!)      
+    </markdown>
+  </lecture>
+</div>

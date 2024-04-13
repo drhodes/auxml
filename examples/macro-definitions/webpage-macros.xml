@@ -1,0 +1,46 @@
+<macros>
+  <define-macro name="lecture" vars="title">
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" />
+        <meta http-equiv="x-ua-compatible" content="ie=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <title>[[title]]</title>
+        <link rel="stylesheet" href="css/main.css" />
+        <link rel="icon" href="images/favicon.png" />
+      </head>
+      
+      <body>
+        <contents/>
+      </body>
+      
+      <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+      <script>
+        var el = document.getElementById('markdowncontent');
+        console.log(el.innerText)
+        console.log(marked.parse(el.innerText));
+      </script>      
+    </html>
+  </define-macro>
+
+  <define-macro name="stuff">
+    <div class="stuff">
+      <contents/>
+    </div>
+  </define-macro>
+
+  <define-macro name="markdown">
+    <div id="markdowncontent">
+      <pre>
+        <contents/>
+      </pre>
+    </div>
+  </define-macro>
+
+  
+  <define-macro name="bb">
+    <span style="color: blue"> <b><contents/></b> </span>
+  </define-macro>
+    
+</macros>

@@ -28,6 +28,13 @@ run: install
 	--infile ./examples/auxml-src/example1.xml \
 	--build-dir /tmp/testout
 
+webpage: install
+	${VENV} auxml \
+	--macros ./examples/macro-definitions/webpage-macros.xml \
+	--infile ./examples/auxml-src/webpage.xml \
+	--build-dir /tmp/webpage
+
+
 .PHONY: reinstall
 reinstall: 
 	${PY} -m pip install -e .
