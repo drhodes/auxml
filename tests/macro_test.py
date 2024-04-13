@@ -208,9 +208,9 @@ def test_with_mm():
     e = '<div></div>'
     with_mm(m, c, e)
     
-# def test_mac_attrib1():
-#     m = '<define-macro name="square" vars="color, size"><div><div class="square"> is [[size]] meters wide and is the color [[color]]</div></div></define-macro>'
-#     c = '<mac/>'
-#     e = '<div></div>'
-#     with_mm(m, c, e)
+def test_mac_attrib1():
+    m = '<define-macro name="square" vars="color, size"><div><div class="square"> is [[size]] meters wide and is the color [[color]]</div></div></define-macro>'
+    c = '<square color="blue" size="30"/>'
+    e = '<div><div class="square"> is 30 meters wide and is the color blue</div></div>'
+    with_mm(m, c, e)
     

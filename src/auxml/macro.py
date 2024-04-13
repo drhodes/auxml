@@ -82,9 +82,32 @@ class MacroDef():
     def expand_empty(self, mcall):
         return self.get_body()
 
+    def replace_attrs(self, mcall, mac):
+        s = etree.tostring(mac).decode("utf8")
+        for av in self.attr_vars():
+            tgt = f"[[{av}]]"
+            val = mcall.get_attr(av)
+            s = s.replace(tgt, val)
+        tree = etree.fromstring(s)
+        return tree
+
+    def has_vars(self):
+        return self.el.get("vars") is not None
     
+    def attr_vars(self):
+        if self.has_vars():
+            return [x.strip() for x in self.el.get("vars").split(",")]
+        return []
+    
+    def ensure_attrs_match(self, mcall):
+        for var in self.attr_vars():
+            if not mcall.contains_attr(var):
+                raise Exception(f"Macro call on line ... must have attribute: {var}")
+        
     def expand(self, mcall):
         self.ensure_names_match(mcall)
+        self.ensure_attrs_match(mcall)
+        
         mac = None
         if mcall.is_element_based():
             mac = self.expand_element_based(mcall)
@@ -96,7 +119,8 @@ class MacroDef():
             mac = self.expand_empty(mcall)           
         else:            
             raise Exception("Unhandled expansion, this is a bug")
-        return mac
+
+        return self.replace_attrs(mcall, mac)
         
         
 class MacroCall:    
@@ -109,6 +133,12 @@ class MacroCall:
     def text(self):
         return self.el.text
 
+    def contains_attr(self, attr):
+        return self.el.get(attr) is not None
+
+    def get_attr(self, attr):
+        return self.el.get(attr)
+    
     def getchildren(self):
         return self.el.getchildren()
     
