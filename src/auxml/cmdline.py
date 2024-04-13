@@ -51,7 +51,7 @@ class CmdLine:
     def macros(self):
         return self.args.macros
         
-    def build_dir_path(self):
+    def build_dir(self):
         return self.args.build_dir
     
     
