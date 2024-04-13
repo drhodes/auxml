@@ -16,7 +16,12 @@ class App():
         tree = etree.parse(cmdline.infile())
         root = tree.getroot()
         exp = mm.expand_all(root)
-        showel(exp)
+        self.save(exp)
+
+    def save(self, el):
+        outfile = f"{cmdline.build_dir()}/output.html"
+        open(outfile, 'wb').write(etree.tostring(el, method="html"))
+        
         
 def main():
     App()

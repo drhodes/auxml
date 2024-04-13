@@ -1,4 +1,5 @@
 from lxml import etree 
+from copy import deepcopy
 
 from auxml.macro import MacroDef, MacroCall
 from auxml.util import *
@@ -9,7 +10,9 @@ class MacroManager():
         self.macro_defs = {}
             
     def load_macro_file(self, infile):
-        macros = etree.parse(infile)
+        parser = etree.XMLParser(remove_blank_text=True, remove_comments=True)
+        # xml_root = etree.fromstring(xml, parser)
+        macros = etree.parse(infile, parser)
         for el in macros.findall(".//define-macro"):
             macdef = MacroDef(el)
             self.add_macro_def(macdef)
@@ -28,13 +31,17 @@ class MacroManager():
         if el.tag in self.macro_defs:
             mac = self.macro_defs[el.tag]
             call = MacroCall(el)
+            tail = el.tail
             el = mac.expand(call)
+            el.tail = tail
             
         for e in el.getchildren():
-            exp = self.expand_all(e)
+            exp = self.expand_all(e)            
             el.replace(e, exp)
 
         if self.cant_find(el.tag):
             raise Exception(f"Can't seem to find tag: {el.tag} anywhere")
         return el
-        
+
+    def __repr__(self):
+        return f"<<MacroManager: {len(self.macro_defs)} registered macros>>"

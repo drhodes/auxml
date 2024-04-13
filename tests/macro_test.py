@@ -179,38 +179,101 @@ def test_nested1():
     call = etree.fromstring(mcall)
     el = mm.expand_all(call)
     assert eq_trees(el, exp)
-    
-    
-def test_macro_empty_mm():
-    mac  = etree.fromstring('''<define-macro name="mac"><div></div></define-macro>''')
-    call = etree.fromstring('''<mac/>''')
-    exp  = etree.fromstring('''<div></div>''')
-    
-    mm = MacroManager()
-    mm.add_macro_def(MacroDef(mac))
-    el = mm.expand_all(call)
-    assert eq_trees(el, exp)
 
-
-def with_mm(mac_str, call_str, expect_str):
-    mac  = etree.fromstring(mac_str)
+def with_mm(mac_strings, call_str, expect_str):
     call = etree.fromstring(call_str)
     exp  = etree.fromstring(expect_str)
     mm = MacroManager()
-    mm.add_macro_def(MacroDef(mac))
+    
+    for mac_str in mac_strings:
+        mac  = etree.fromstring(mac_str)
+        mm.add_macro_def(MacroDef(mac))
     el = mm.expand_all(call)
     assert eq_trees(el, exp)
     
+def test_macro_empty_mm():
+    m = '''<define-macro name="mac"><div></div></define-macro>'''
+    c = '''<mac/>'''
+    e = '''<div></div>'''
+    with_mm([m], c, e)
     
 def test_with_mm():
     m = '<define-macro name="mac"><div></div></define-macro>'
     c = '<mac/>'
     e = '<div></div>'
-    with_mm(m, c, e)
+    with_mm([m], c, e)
     
 def test_mac_attrib1():
     m = '<define-macro name="square" vars="color, size"><div><div class="square"> is [[size]] meters wide and is the color [[color]]</div></div></define-macro>'
     c = '<square color="blue" size="30"/>'
     e = '<div><div class="square"> is 30 meters wide and is the color blue</div></div>'
-    with_mm(m, c, e)
+    with_mm([m], c, e)
+
+
+def test_mac_multi_call1():
+    m1 = '<define-macro name="square"> <div class="square"></div></define-macro>'
+    m2 = '<define-macro name="circle"> <div class="circle"></div></define-macro>'
+    c = '<div><square/><circle/></div>'
+    e = '<div><div class="square"></div><div class="circle"></div></div>'
+    with_mm([m1, m2], c, e)
     
+def test_mac_multi_call2():
+    m1 = '<define-macro name="square"><div class="square">A</div></define-macro>'
+    m2 = '<define-macro name="circle"><div class="circle"></div></define-macro>'
+    c = '<div><square/><circle/></div>'
+    e = '<div><div class="square">A</div><div class="circle"></div></div>'
+    with_mm([m1, m2], c, e)
+    
+def test_mac_multi_call3():
+    m1 = '<define-macro name="square"><div class="square">A</div></define-macro>'
+    m2 = '<define-macro name="circle"><div class="circle">B</div></define-macro>'
+    c = '<div><square/><circle/></div>'
+    e = '<div><div class="square">A</div><div class="circle">B</div></div>'
+    with_mm([m1, m2], c, e)
+
+def test_mac_multi_call4():
+    m1 = '<define-macro name="square"><div class="square">A</div></define-macro>'
+    m2 = '<define-macro name="circle"><div class="circle">B</div></define-macro>'
+    c = '<div>before<square/><circle/></div>'
+    e = '<div>before<div class="square">A</div><div class="circle">B</div></div>'
+    with_mm([m1, m2], c, e)
+
+
+def test_mac_multi_call5():
+    m1 = '<define-macro name="square"><div class="square">A</div></define-macro>'
+    m2 = '<define-macro name="circle"><div class="circle">B</div></define-macro>'
+    c = '<div><square/><circle/>after</div>'
+    e = '<div><div class="square">A</div><div class="circle">B</div>after</div>'    
+    with_mm([m1, m2], c, e)
+
+def test_mac_multi_call6():
+    m1 = '<define-macro name="square"><div class="square">A</div></define-macro>'
+    c = '<div><square></square>after</div>'
+    e = '<div><div class="square">A</div>after</div>'
+    # import pudb;pudb.set_trace()
+    with_mm([m1], c, e)
+    
+
+# <div>
+#   <lecture title="best page in the universe!">
+#     <stuff>
+#       <p>
+#         asdf <bb>Hello</bb> this text is missing because of the "bb" tags
+#       </p>
+#     </stuff>
+#     <markdown>
+#       ##The three main goals of this course are:
+#       asdf
+#       - Gain experience with proofs.
+#       - Have fun proving statements about real numbers, functions, and limits.
+#       - Formalize proofs in the Lean proof assistant.. (it's more addictive than sudoku - really!)      
+#     </markdown>
+#   </lecture>
+# </div>
+
+# def test_mac_multi_call7():
+#     m1 = '<define-macro name="m"><div>(<contents/>)</div></define-macro>'
+#     c = '<div><m><m>p</m><m>o</m></m></div>'
+#     e = '<div><div>(p)</div><div>(p)</div></div>'
+#     import pudb;pudb.set_trace()
+#     with_mm([m1], c, e)

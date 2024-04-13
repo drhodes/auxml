@@ -54,7 +54,8 @@ class MacroDef():
                 par.text += mcall.text() + tail(content)
             else:
                 par.text = mcall.text() + tail(content)
-                
+        if mcall.el.tail:
+            body.tail = mcall.el.tail
         return body
     
     def expand_mixed(self, mcall):
@@ -71,12 +72,16 @@ class MacroDef():
                 
             if content.tail is None: continue            
             # append the tail of <content/> to the tail of the last element in par.
+
+            # this only works with one child element, should not be
+            # "last" it should be which ever element replaced <content/>
             
             last = par.getchildren()[-1]
             if last.tail == None:
                 last.tail = content.tail
             else:
                 last.tail += content.tail
+        body.tail = mcall.el.tail
         return body
 
     def expand_empty(self, mcall):
@@ -88,8 +93,13 @@ class MacroDef():
             tgt = f"[[{av}]]"
             val = mcall.get_attr(av)
             s = s.replace(tgt, val)
-        tree = etree.fromstring(s)
-        return tree
+            
+        # if `s` has a tail it won't parse so.. wrap it in a temporary
+        # element tag, then extract it. Maybe there's a better way to
+        # do this.
+        
+        tree = etree.fromstring("<temp>" + s + "</temp>")
+        return tree.getchildren()[0]
 
     def has_vars(self):
         return self.el.get("vars") is not None
@@ -107,6 +117,8 @@ class MacroDef():
     def expand(self, mcall):
         self.ensure_names_match(mcall)
         self.ensure_attrs_match(mcall)
+        if mcall.contains_attr("debug"):
+            import pudb;pudb.set_trace()
         
         mac = None
         if mcall.is_element_based():
@@ -117,7 +129,7 @@ class MacroDef():
             mac = self.expand_mixed(mcall)
         elif mcall.is_empty(): 
             mac = self.expand_empty(mcall)           
-        else:            
+        else:             
             raise Exception("Unhandled expansion, this is a bug")
 
         return self.replace_attrs(mcall, mac)
@@ -178,5 +190,8 @@ class MacroCall:
         else:
             raise Exception("")
 
+    def show(self):
+        return show(self.el)
 
-
+    def __str__(self):
+        return self.show()
