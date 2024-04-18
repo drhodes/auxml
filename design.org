@@ -1,0 +1,27 @@
+
+
+<readme>
+auxml
+
+This is an author friendly macro system for XML that is currently
+geared towards emitting HTML.
+
+** purpose
+
+To provide a flexible light weight alternative to XML for authoring
+documents, while still availing authors the industrial tools from the
+XML ecosystem.
+
+Its first primary use is creating online courses that will be
+translated into other human languages.  The verbose 
+
+Be carefully layering macros, the goal is to target multiple backends
+such as openedx, coursera, or hand-rolled websites. This should be
+possible without needing to build custom passes with tree walking
+code, but rather with macros that have just enough power to do the
+job.
+
+
+
+
+
