@@ -16,74 +16,26 @@ def tail(el):
         return el.tail
     else:
         return ""
-
+    
+    
 class MacroDef():
-    def __init__(self, el):
+    def __init__(self, el):        
         self.el = el
         self.name = el.get("name")
-
+        
     def replace_one_var(self, el, varname, valuem):
         pass
-
+    
     def ensure_names_match(self, mcall):
         assert mcall.name() == self.name
 
     def get_body(self):
         # the following line assumes the macro body only has one element.
         # TODO let macros definition have text and elements.
+        if len(self.el.getchildren()) != 1:
+            import pudb;pudb.set_trace()
         return deepcopy(self.el.getchildren()[0])
     
-    def expand_element_based(self, mcall):
-        body = self.get_body()
-        
-        for content in body.findall(".//contents"):
-            if mcall.has_children():
-                inner = mcall.inner()
-                content.getparent().replace(content, inner)
-                return body
-            else:
-                raise Exception("need to handle text based macro call")
-        raise Exception("dead code")
-    
-    def expand_text_based(self, mcall):
-        body = self.get_body()
-        for content in body.findall(".//contents"):
-            par = content.getparent()
-            par.remove(content)
-            if par.text:
-                par.text += mcall.text() + tail(content)
-            else:
-                par.text = mcall.text() + tail(content)
-        if mcall.el.tail:
-            body.tail = mcall.el.tail
-        return body
-    
-    def expand_mixed(self, mcall):
-        body = self.get_body()
-        for content in body.findall(".//contents"):
-            par = content.getparent()            
-            par.remove(content)
-            if par.text:
-                par.text += mcall.text()
-            else: 
-                par.text = mcall.text()
-            for e in mcall.getchildren():
-                par.append(deepcopy(e))
-                
-            if content.tail is None: continue            
-            # append the tail of <content/> to the tail of the last element in par.
-
-            # this only works with one child element, should not be
-            # "last" it should be which ever element replaced <content/>
-            
-            last = par.getchildren()[-1]
-            if last.tail == None:
-                last.tail = content.tail
-            else:
-                last.tail += content.tail
-        body.tail = mcall.el.tail
-        return body
-
     def expand_empty(self, mcall):
         return self.get_body()
 
@@ -93,13 +45,20 @@ class MacroDef():
             tgt = f"[[{av}]]"
             val = mcall.get_attr(av)
             s = s.replace(tgt, val)
+
+        # the macro should have a unique identifier available to the macrocall
+        s = s.replace("[[this]]", mcall.unique_id())
             
         # if `s` has a tail it won't parse so.. wrap it in a temporary
         # element tag, then extract it. Maybe there's a better way to
         # do this.
         
-        tree = etree.fromstring("<temp>" + s + "</temp>")
-        return tree.getchildren()[0]
+        try:
+            tree = etree.fromstring("<temp>" + s + "</temp>")
+            return tree.getchildren()[0]
+        except Exception as e:
+            print(s)
+            raise e
 
     def has_vars(self):
         return self.el.get("vars") is not None
@@ -111,40 +70,120 @@ class MacroDef():
     
     def ensure_attrs_match(self, mcall):
         for var in self.attr_vars():
-            if not mcall.contains_attr(var):
-                raise Exception(f"Macro call on line ... must have attribute: {var}")
+            if not mcall.contains_attr(var):                
+                raise Exception(f"Macro call: {mcall.name()} on line ... must have attribute: {var}")
+
+
+    def replace_one_content(self, mcall, con):
+        # identify calls cases.
+        # <call> text </call>
         
+        # identify <contents/> cases.
+        # <tag> text <contents/> tail </tag>
+        # <tag> text <contents/>      </tag>
+        # <tag>      <contents/>      </tag>
+        par = con.getparent()
+        par.remove(con)
+        if par.text is None:
+            par.text = ""
+        par.text += mcall.text() + tail(con)
+            
+    def expand_just_text(self, mcall):
+        macrobody = self.get_body() # this is an element with no text or tail.
+        for con in macrobody.findall(".//contents"):
+            # mutating.
+            self.replace_one_content(mcall, con)
+        return macrobody
+            
+    def expand_rest(self, mcall):        
+        macrobody = self.get_body() # this is an element with no text or tail.
+        # mcall will have at least one element.
+        # mcall might have a tail, but callers will worry about that.
+
+        # identify calls cases.
+        # <call>      <el/>       </call>
+        # <call> text <el/>       </call>
+        # <call>      <el/> tail  </call>
+        # <call> text <el/> tail  </call>        
+        # <call> text <el1/> tail1 <el2/> tail2 </call>
+
+        # identify <contents/> cases.
+        # <tag> text <contents/> tail </tag>
+        # <tag> text <contents/>      </tag>
+        # <tag>      <contents/>      </tag>
+       
+        for con in macrobody.findall(".//contents"):
+            par = con.getparent()
+            idx = par.index(con)
+            calltext = mcall.text()
+            contail = tail(con)
+
+            # handling the text node of the caller when replacing <contents/>
+            if idx == 0:
+                # <contents/> is the first element, so the callers
+                # text nodes needs to be appended to the parents text
+                # node, in other words splicing it in.
+                if par.text is None: par.text = ""
+                par.text += calltext
+            else:
+                # otherwise the <contents/> is somewhere in the middle
+                # and has a previous element, therefore the callers
+                # text node needs to be appended to the tail of the
+                # previous element.
+                prev = con.getprevious()
+                if prev.tail is None: prev.tail = ""
+                prev.tail += calltext
+            
+            for el in mcall.el.getchildren():
+                idx += 1
+                e = deepcopy(el)
+                par.insert(idx, e)
+        
+            if len(par) > 0 and con.tail:
+                if par[-1].tail is None:
+                    par[-1].tail = ""
+                par[-1].tail += contail
+            par.remove(con)
+                
+            
+        return macrobody
+        
+            
     def expand(self, mcall):
         self.ensure_names_match(mcall)
         self.ensure_attrs_match(mcall)
+        
         if mcall.contains_attr("debug"):
             import pudb;pudb.set_trace()
         
-        mac = None
-        if mcall.is_element_based():
-            mac = self.expand_element_based(mcall)
-        elif mcall.is_text_based():
-            mac = self.expand_text_based(mcall)        
-        elif mcall.is_mixed():
-            mac = self.expand_mixed(mcall)
-        elif mcall.is_empty(): 
-            mac = self.expand_empty(mcall)           
-        else:             
-            raise Exception("Unhandled expansion, this is a bug")
+        if mcall.is_empty(): 
+            mac = self.expand_empty(mcall)
+        elif mcall.is_just_text():
+            mac = self.expand_just_text(mcall)
+        else:
+            mac = self.expand_rest(mcall)
 
         return self.replace_attrs(mcall, mac)
         
         
-class MacroCall:    
+class MacroCall:
+    counter = 0
+    
     def __init__(self, el):
         self.el = el
+        self.counter = MacroCall.counter
+        MacroCall.counter += 1
+        
+    def unique_id(self):
+        return f"{self.name()}-{self.counter}"
         
     def name(self):
         return self.el.tag
 
     def text(self):
-        return self.el.text
-
+        t = self.el.text
+        return t if t else ""
+    
     def contains_attr(self, attr):
         return self.el.get(attr) is not None
 
@@ -153,9 +192,12 @@ class MacroCall:
     
     def getchildren(self):
         return self.el.getchildren()
+
+    def is_just_text(self):
+        return self.has_no_children() and self.has_text()
     
-    def number_children(self):
-        return len(self.getchildren())
+    def number_children(self):        
+        return len(self.el.getchildren())
     
     def has_children(self):
         return self.number_children() > 0
@@ -183,12 +225,6 @@ class MacroCall:
 
     def is_empty(self):
         return self.has_no_children() and self.has_no_text()
-    
-    def inner(self):
-        if self.has_children():
-            return deepcopy(self.el.getchildren()[0])
-        else:
-            raise Exception("")
 
     def show(self):
         return show(self.el)

@@ -118,5 +118,11 @@ HTML_TAGS = { "a",
               "ul",
               "var",
               "video",
-              "wbr"
+              "wbr",
+              "h1",
+              "h2",
+              "h3",
+              "h4",
+              "h5",
+              "h6",
              }

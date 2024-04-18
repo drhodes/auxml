@@ -14,9 +14,9 @@ class CmdLine:
     def parse_arguments(self):
         parser = argparse.ArgumentParser(description="Your script description here.")
 
-        parser.add_argument('--build-dir', required=True, help='specify output target build directory') 
         parser.add_argument('--macros', required=True, help='specify the input macro XML file')
         parser.add_argument('--infile', required=True, help='specify the input XML file')
+        parser.add_argument('--outfile', required=True, help='specify output file')
        
         parser.add_argument(
             "-v",
@@ -51,8 +51,8 @@ class CmdLine:
     def macros(self):
         return self.args.macros
         
-    def build_dir(self):
-        return self.args.build_dir
+    def outfile(self):
+        return self.args.outfile
     
     
 cmdline = CmdLine()
