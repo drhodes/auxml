@@ -1,11 +1,11 @@
 
-# What is AuXML?
+# What is AuXML? (Author XML)
 
 It's XML minus the namespace stuff plus a macro system.
 
 # Why does it exist?
 
-Two main reasons. Markdown and friends are not good for large
+Two main reasons. Markdown and friends are not good for authoring large
 documents and XML/HTML is painful to write. 
 
 # What does it look like?
@@ -60,7 +60,8 @@ OK, so what would such a macro look like? In AuXML, it looks like this:
 </defmacro>
 ```
 
-then to call the macro with name `sr`, you would type:
+That's the macro definition. To use it, invoke the macro with name
+`sr` by typing:
 
 ```xml
 <sr> your text goes here </sr>
