@@ -1,100 +1,79 @@
 
-Processing Phases
+# What is AuXML?
 
-Phase1, ensure user document is well-formed xml
-Prase2, expand the macros.
+It's XML minus the namespace stuff plus a macro system.
 
+# Why does it exist?
 
+Two main reasons. Markdown and friends are not good for large
+documents and XML/HTML is painful to write. 
 
-# Phase 2: Expanding Macros
+# What does it look like?
 
-There are some distinct cases for a macro call which need to be handled carefully.
+Suppose you are authoring a large document in HTML, and are
+writing a paragraph, such as this:
 
-1) Text Argument
-2) Single Element Argument
-3) Mixed Element Argument
+```html
+<p>
+  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
+  eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+  minim veniam, quis nostrud exercitation ullamco laboris nisi ut
+  aliquip ex ea commodo consequat. 
+</p>
+```
 
+You'd like to add some styling to part of the first sentence. To do
+that, you might use span with a CSS class.
 
-Text arguement, where the macro call has no child elements and only a
-text element. The macro call has form: `<blue> arg </blue>`
+```html
+<p>
+  <span class="some-rule">Lorem ipsum dolor sit amet</span>,
+  consectetur ...
+</p>
+```
+
+Manually typing such a `<span>..</span>` just once is not too onerous. Typing it
+n-times is awful. We can do better! What if there was a way to
+define a macro to save some typing? Then we could reduce:
+
+```html
+<span class="some-rule">Lorem ipsum dolor sit amet</span>
+```
+
+down to:
+
+```html
+<some-rule>Lorem ipsum dolor sit amet</some-rule>
+```
+
+Or even:
+
+```html
+<sr>Lorem ipsum dolor sit amet</sr>
+```
+
+OK, so what would such a macro look like? In AuXML, it looks like this:
 
 ```xml
-<blue>
-    this sentence is a text arguemnt 
-</blue>
+<defmacro name="sr">
+  <span class="some-rule"><contents/></span>
+</defmacro>
 ```
 
-Element argument, where the macro call has a single child element
+then to call the macro with name `sr`, you would type:
 
 ```xml
-<blue> 
-    <div>
-        this div is an element argument
-    </div> 
-</blue>
+<sr> your text goes here </sr>
 ```
 
-The element may have tail text associated with it
+which will replace the `<contents/>` tag in the macro definition and
+produce:
 
-```xml
-<blue> 
-    <div>
-        this div is an element argument
-    </div> 
-    
-    tail text
-</blue>
+```html
+<span class="some-rule"> your text goes here </span>
 ```
 
-Mixed argument, where the macro call element has a text node some
-elements that may have tails.
-
-```xml
-<blue> 
-    node text
-    
-    <div>
-        this div is an element argument
-    </div> 
-
-    <div>
-        this div is the second element
-    </div> 
-
-    node tail
-</blue>
-```
-
-
-# Example 1) Text Argument.
-
-```xml
-<blue> this sentence is a text arguement </blue>
-```
-
-Suppose the macro associate with <blue> ... </blue> is
-
-```xml
-<define-macro name="blue"> <span class="blue-css-rule"> <contents/> </span> </define-macro>
-```
-
-The macro definition has a special key element called `<contents/>`
-which is replaced by the contents of the macro call. In this example that is 
-
-```
-<blue> this sentence is a text argument </blue>
-      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-```
-
-So expanding the macro will result in:
-
-```xml
-<span class="blue-css-rule">  this sentence is a text argument  </span> 
-                            !^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^!
-```
-
-Where the white space is preserved. Notice that the argument becomes
-the text node of the `<span>` element, which is the parent of the
-`<content/>` node of the macro definition.
-
+There are a few more features, but that's the gist of it.  The whole
+system is roughly 700 lines of python code, lxml does all the heavy
+lifting.
 
