@@ -32,8 +32,8 @@ that, you might use a span with some CSS.
 </p>
 ```
 
-Manually typing  `<span>..</span>` just once is not too onerous. Typing it
-n-times is awful. We can do better! What if there was a way to
+Manually typing that span just once is not too onerous. Typing it over
+and over again is awful! We can do better! What if there was a way to
 define a macro to save some typing? Then we could reduce:
 
 ```html
@@ -77,4 +77,7 @@ and produce:
 There are a few more features, but that's the gist of it.  The whole
 system is roughly 700 lines of python code, lxml does all the heavy
 lifting.
+
+
+
 
