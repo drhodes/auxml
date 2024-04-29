@@ -23,7 +23,7 @@ writing a paragraph, such as this:
 ```
 
 You'd like to add some styling to part of the first sentence. To do
-that, you might use span with a CSS class.
+that, you might use a span with some CSS.
 
 ```html
 <p>
@@ -32,7 +32,7 @@ that, you might use span with a CSS class.
 </p>
 ```
 
-Manually typing such a `<span>..</span>` just once is not too onerous. Typing it
+Manually typing  `<span>..</span>` just once is not too onerous. Typing it
 n-times is awful. We can do better! What if there was a way to
 define a macro to save some typing? Then we could reduce:
 
@@ -66,8 +66,8 @@ then to call the macro with name `sr`, you would type:
 <sr> your text goes here </sr>
 ```
 
-which will replace the `<contents/>` tag in the macro definition and
-produce:
+which will replace the `<contents/>` tag found in the macro definition
+and produce:
 
 ```html
 <span class="some-rule"> your text goes here </span>
