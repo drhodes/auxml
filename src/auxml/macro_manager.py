@@ -19,7 +19,7 @@ class MacroManager():
 
     def add_macro_def(self, macdef):
         if is_an_html_tag(macdef.name):
-            raise Exception(f"macro can't have the same name as an HTML tag")
+            raise Exception(f"macro: `{macdef.name}` can't have the same name as an HTML tag")
         if macdef.name in self.macro_defs:
             raise Exception(f"macro already defined: {macdef.name}")
         if len(macdef.el.getchildren()) > 1:
