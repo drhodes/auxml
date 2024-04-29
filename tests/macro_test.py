@@ -1,3 +1,4 @@
+import sys
 import pudb
 from lxml import etree
 from xmldiff.diff import Differ
@@ -9,10 +10,18 @@ MacroDefBlue = '''<define-macro name="blue"><span style="color: #00f"><b><conten
 MacroCallBlue = '''<blue><text>stuff</text></blue>'''
 BlueExpect = etree.fromstring('''<span style="color: #00f"><b><text>stuff</text></b></span>''')
 
-def eq_trees(e1, e2):
+def cur_debugging():
+    return hasattr(sys, 'gettrace') and sys.gettrace()
+
+def eq_trees(got, exp):
     differ = Differ()
-    diff = differ.diff(e1, e2)
-    return len(list(diff)) == 0
+    diff = differ.diff(got, exp)
+    is_same = len(list(diff)) == 0
+    if not is_same:
+        print("got:", show(got))
+        print("exp:", show(exp))
+        if cur_debugging(): import pudb;pudb.set_trace()
+    return is_same
 
 def test_macro_def_blue():
     mac = MacroDef(etree.fromstring(MacroDefBlue))
@@ -77,8 +86,8 @@ def with_mm(mac_strings, call_str, expect_str):
     for mac_str in mac_strings:
         mac  = etree.fromstring(mac_str)
         mm.add_macro_def(MacroDef(mac))
-    el = mm.expand_all(call)
-    assert eq_trees(el, exp)
+    got = mm.expand_all(call)
+    assert eq_trees(got, exp)
 
 def test_macro_def_green():
     m = '<define-macro name="green"><span style="color: #00f"><b><contents/></b></span></define-macro>'
@@ -199,5 +208,32 @@ def test_mac_multi_call7():
     c = '<div><m><m>p</m><m>q</m></m></div>'
     e = '<div><div>(<div>(p)</div><div>(q)</div>)</div></div>'
     with_mm([m], c, e)
+
+    
+# this works.
+def test_mac_multi_rearrange_bug2():
+    m = '''
+    <define-macro name="page" vars="title">
+      <div><div>[[title]]</div>B</div>
+    </define-macro>
+    '''
+
+    c = '<page title="A">B</page>'
+    e = '''<div><div>A</div>B</div>'''
+    with_mm([m], c, e)
+    
+
+def test_mac_multi_rearrange_bug():
+    m = '''
+    <define-macro name="page" vars="title">
+      <div><div>[[title]]</div><contents/></div>
+    </define-macro>
+    '''
+
+    c = '<page title="A">B</page>'
+    e = '''<div><div>A</div>B</div>'''
+    #pudb.set_trace()
+    with_mm([m], c, e)
+    
 
     

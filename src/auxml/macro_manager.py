@@ -28,6 +28,7 @@ class MacroManager():
 
     def cant_find(self, tag):
         assert type(tag) == str
+        if tag == "contents": return False
         return not ((tag in self.macro_defs) or is_an_html_tag(tag))
 
     def expand_all(self, el):

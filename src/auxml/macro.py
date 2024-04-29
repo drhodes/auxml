@@ -16,6 +16,12 @@ def tail(el):
         return el.tail
     else:
         return ""
+
+def append_tail(el, s):
+    if el.tail is None:
+        el.tail = s
+    else:
+        el.tail += s
     
     
 class MacroDef():
@@ -32,8 +38,8 @@ class MacroDef():
     def get_body(self):
         # the following line assumes the macro body only has one element.
         # TODO let macros definition have text and elements.
-        if len(self.el.getchildren()) != 1:
-            import pudb;pudb.set_trace()
+        if len(self.el.getchildren()) > 1:
+            raise Exception("macro definitions may not yet have more than one element")
         return deepcopy(self.el.getchildren()[0])
     
     def expand_empty(self, mcall):
@@ -82,6 +88,7 @@ class MacroDef():
         # <tag> text <contents/> tail </tag>
         # <tag> text <contents/>      </tag>
         # <tag>      <contents/>      </tag>
+        
         par = con.getparent()
         par.remove(con)
         if par.text is None:
@@ -89,10 +96,22 @@ class MacroDef():
         par.text += mcall.text() + tail(con)
             
     def expand_just_text(self, mcall):
+        '''
+        this is the case where mcall is replacing the <contents/>
+        element with just a string.
+        '''
         macrobody = self.get_body() # this is an element with no text or tail.
         for con in macrobody.findall(".//contents"):
             # mutating.
-            self.replace_one_content(mcall, con)
+            prev = con.getprevious()
+            if prev is not None:
+                # CASE: <contents/> is being replaced by a string.
+                # <tag> .. <tag> .. </tag> .. <contents/> <notail> </tag>
+                # 
+                append_tail(prev, mcall.text())
+                con.getparent().remove(con)
+            else:
+                self.replace_one_content(mcall, con)
         return macrobody
             
     def expand_rest(self, mcall):        
@@ -144,7 +163,6 @@ class MacroDef():
                     par[-1].tail = ""
                 par[-1].tail += contail
             par.remove(con)
-                
             
         return macrobody
         
