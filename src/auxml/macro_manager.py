@@ -31,9 +31,9 @@ class MacroManager():
         if tag == "contents": return False
         return not ((tag in self.macro_defs) or is_an_html_tag(tag))
 
-    def expand_all(self, el):
+    def expand_all(self, fname, el):
         if self.cant_find(el.tag):
-            raise Exception(f"Can't seem to find tag: {el.tag} anywhere")
+            raise Exception(f"In file: {fname}, on line: {el.sourceline}, found unknown tag: {el.tag}")
         
         if el.tag in self.macro_defs:
             mac = self.macro_defs[el.tag]
@@ -43,11 +43,11 @@ class MacroManager():
             el.tail = tail
             
         for e in el.getchildren():
-            exp = self.expand_all(e)            
+            exp = self.expand_all(fname, e)            
             el.replace(e, exp)
 
         if el.tag in self.macro_defs:
-            return self.expand_all(el)
+            return self.expand_all(fname, el)
         else:
             return el
 

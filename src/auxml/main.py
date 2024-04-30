@@ -12,9 +12,11 @@ class App():
     def __init__(self):
         mm = MacroManager()
         mm.load_macro_file(cmdline.macros())
+
+        fname = cmdline.infile()
+        root = parse_xml_file(fname)
         
-        root = parse_xml_file(cmdline.infile())
-        exp = mm.expand_all(root)
+        exp = mm.expand_all(fname, root)
         self.save(exp)
 
     def save(self, el):

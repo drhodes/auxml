@@ -86,7 +86,7 @@ def with_mm(mac_strings, call_str, expect_str):
     for mac_str in mac_strings:
         mac  = etree.fromstring(mac_str)
         mm.add_macro_def(MacroDef(mac))
-    got = mm.expand_all(call)
+    got = mm.expand_all("nofile", call)
     assert eq_trees(got, exp)
 
 def test_macro_def_green():
