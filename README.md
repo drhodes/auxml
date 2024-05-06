@@ -15,7 +15,8 @@ documents and XML/HTML is painful to write.
 Suppose you are authoring a large document in HTML, and are
 writing a paragraph, such as this:
 
-```html <p>
+```html
+<p>
 It was the best of times, it was the blurst of times, it
 was the age of wisdom, it was the age of foolishness, it was the epoch
 of belief, it was the epoch of incredulity, it was the season of
