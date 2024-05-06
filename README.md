@@ -35,9 +35,10 @@ that, you might use a span with some CSS.
 </p>
 ```
 
-Manually typing that span just once is not too onerous, but typing it
+Manually typing that span just once is not too hard, but typing it
 over and over again would be awful! We can do better! What if there
-was a way to define a macro to make things easier? Then we could reduce:
+was a way to define a macro to make things easier? Then we could
+reduce:
 
 ```html
 <span class="some-rule">It was the best of times, it was the blurst of times</span>
@@ -49,7 +50,7 @@ down to:
 <some-rule>It was the best of times, it was the blurst of times</some-rule>
 ```
 
-Or shorted the macro name:
+Or shorten the macro name down to just `sr`:
 
 ```html
 <sr>It was the best of times, it was the blurst of times</sr>
