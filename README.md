@@ -1,3 +1,5 @@
+(this is a prototype, so, not ready to use yet)  
+
 
 # What is AuXML? (Author XML)
 
@@ -13,12 +15,12 @@ documents and XML/HTML is painful to write.
 Suppose you are authoring a large document in HTML, and are
 writing a paragraph, such as this:
 
-```html
-<p>
-  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-  eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-  minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-  aliquip ex ea commodo consequat. 
+```html <p>
+It was the best of times, it was the blurst of times, it
+was the age of wisdom, it was the age of foolishness, it was the epoch
+of belief, it was the epoch of incredulity, it was the season of
+light, it was the season of darkness, it was the spring of hope, it
+was the winter of despair.
 </p>
 ```
 
@@ -27,29 +29,29 @@ that, you might use a span with some CSS.
 
 ```html
 <p>
-  <span class="some-rule">Lorem ipsum dolor sit amet</span>,
-  consectetur ...
+  <span class="some-rule">It was the best of times, it was the blurst of times</span>,
+  it was the age of wisdom ...
 </p>
 ```
 
-Manually typing that span just once is not too onerous. Typing it over
-and over again is awful! We can do better! What if there was a way to
-define a macro to save some typing? Then we could reduce:
+Manually typing that span just once is not too onerous, but typing it
+over and over again would be awful! We can do better! What if there
+was a way to define a macro to make things easier? Then we could reduce:
 
 ```html
-<span class="some-rule">Lorem ipsum dolor sit amet</span>
+<span class="some-rule">It was the best of times, it was the blurst of times</span>
 ```
 
 down to:
 
 ```html
-<some-rule>Lorem ipsum dolor sit amet</some-rule>
+<some-rule>It was the best of times, it was the blurst of times</some-rule>
 ```
 
-Or even:
+Or shorted the macro name:
 
 ```html
-<sr>Lorem ipsum dolor sit amet</sr>
+<sr>It was the best of times, it was the blurst of times</sr>
 ```
 
 OK, so what would such a macro look like? In AuXML, it looks like this:
