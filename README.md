@@ -7,17 +7,17 @@ It's XML minus the namespace stuff plus a macro system.
 
 # Why does it exist?
 
-Two main reasons. Markdown and friends are not good for authoring large
-documents and XML/HTML is painful to write. 
+Two main reasons. Markdown and friends are not good for authoring
+large documents and XML/HTML is painful to write.
 
 # What does it look like?
 
-Suppose you are authoring a large document in HTML, and are
-writing a paragraph, such as this:
+Suppose you are authoring a large document in HTML, and are writing a
+paragraph, such as this:
 
 ```html
 <p>
-It was the best of times, it was the blurst of times, it
+It was the best of times, it was the worst of times, it
 was the age of wisdom, it was the age of foolishness, it was the epoch
 of belief, it was the epoch of incredulity, it was the season of
 light, it was the season of darkness, it was the spring of hope, it
@@ -30,8 +30,7 @@ that, you might use a span with some CSS.
 
 ```html
 <p>
-  <span class="some-rule">It was the best of times, it was the blurst of times</span>,
-  it was the age of wisdom ...
+  <span class="some-rule">It was the best of times</span>, ...
 </p>
 ```
 
@@ -41,13 +40,13 @@ was a way to define a macro to make things easier? Then we could
 reduce:
 
 ```html
-<span class="some-rule">It was the best of times, it was the blurst of times</span>
+<span class="some-rule">It was the best of times</span>
 ```
 
 down to:
 
 ```html
-<some-rule>It was the best of times, it was the blurst of times</some-rule>
+<some-rule>It was the best of times</some-rule>
 ```
 
 Or shorten the macro name down to just `sr`:
