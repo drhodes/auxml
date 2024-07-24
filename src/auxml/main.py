@@ -7,10 +7,14 @@ from auxml.macro_manager import MacroManager
 from lxml import etree
 from auxml.util import *
 from auxml.parser import *
+import auxml.directive as dt
+
 
 class App():
     def __init__(self):
         mm = MacroManager()
+        mm.register_directive("inline-html", dt.InlineHtml)
+        
         mm.load_macro_file(cmdline.macros())
 
         fname = cmdline.infile()

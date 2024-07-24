@@ -1,7 +1,7 @@
 from lxml import etree
 from copy import deepcopy
 from auxml.util import *
-
+from auxml.err import SyntaxErrorAuXML
 '''
 <define-macro name="blue"><span style="color: #00f"><b><contents/></b></span></define-macro>
 '''
@@ -38,8 +38,15 @@ class MacroDef():
     def get_body(self):
         # the following line assumes the macro body only has one element.
         # TODO let macros definition have text and elements.
-        if len(self.el.getchildren()) > 1:
-            raise Exception("macro definitions may not yet have more than one element")
+        cs = self.el.getchildren()
+        
+        if len(cs) == 0:
+            raise SyntaxErrorAuXML(f"Encountered empty macro body in macro definition: `{self.name}`")
+        
+        if len(cs) > 1:
+            msg = "macro definitions may not yet have more than one element"
+            raise SyntaxErrorAuXML(msg)
+        
         return deepcopy(self.el.getchildren()[0])
     
     def expand_empty(self, mcall):
@@ -163,9 +170,7 @@ class MacroDef():
                     par[-1].tail = ""
                 par[-1].tail += contail
             par.remove(con)
-            
         return macrobody
-        
             
     def expand(self, mcall):
         self.ensure_names_match(mcall)
