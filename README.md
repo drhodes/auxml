@@ -1,3 +1,5 @@
+[![Python application](https://github.com/drhodes/auxml/actions/workflows/python-app.yml/badge.svg)](https://github.com/drhodes/auxml/actions/workflows/python-app.yml)
+
 (this is a prototype, so, not ready to use yet)  
 
 
