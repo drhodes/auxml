@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  build1:
     runs-on: ubuntu-latest
 
     steps:
@@ -31,7 +31,7 @@ jobs:
       run: |
         pytest
 
-  build:
+  build2:
     runs-on: macos-latest
 
     steps:
