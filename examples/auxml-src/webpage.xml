@@ -1,9 +1,11 @@
 
+
+
 <div>
   <lecture title="best page in the universe!">
     <stuff>
       <p>
-        asdf <bb>Hello</bb> this text is missing because of the "bb" tags
+        asdf <bb>Hello</bb> this text is missing because of the "bb" tags		
       </p>
     </stuff>
     <markdown>
@@ -13,5 +15,10 @@
       - Have fun proving statements about real numbers, functions, and limits.
       - Formalize proofs in the Lean proof assistant.. (it's more addictive than sudoku - really!)      
     </markdown>
+
+
   </lecture>
+
+
+  
 </div>
