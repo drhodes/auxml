@@ -18,7 +18,7 @@ class App():
         mm.load_macro_file(cmdline.macros())
 
         fname = cmdline.infile()
-        root = parse_xml_file(fname)
+        root = parse_html_file(fname)
         
         exp = mm.expand_all(fname, root)
         self.save(exp)

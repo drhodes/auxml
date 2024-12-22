@@ -4,7 +4,7 @@ from copy import deepcopy
 from auxml.macro import MacroDef, MacroCall
 from auxml.util import *
 from auxml.html_tags import is_an_html_tag
-from auxml.parser import parse_xml_file
+from auxml.parser import parse_html_file
 
 from auxml.err import SyntaxErrorAuXML
 
@@ -17,7 +17,7 @@ class MacroManager():
         self.directives[name] = cls
         
     def load_macro_file(self, infile):
-        macros = parse_xml_file(infile)
+        macros = parse_html_file(infile)
         for el in macros.findall(".//define-macro"):
             md = MacroDef(el)
             self.add_macro_def(md)
@@ -28,7 +28,9 @@ class MacroManager():
         if macdef.name in self.macro_defs:
             raise Exception(f"macro already defined: {macdef.name}")
         if len(macdef.el.getchildren()) > 1:
-            raise SyntaxErrorAuXML(f"macro `{macdef.name}` may not have more than one child element")
+            msg = f"macro `{macdef.name}` may not have more than one child element\n"
+            msg += f"Got `{macdef.el.getchildren()}` child elements\n"
+            raise SyntaxErrorAuXML(msg)
         self.macro_defs[macdef.name] = macdef
 
     def cant_find(self, tag):

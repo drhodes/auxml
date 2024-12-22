@@ -234,6 +234,10 @@ def test_mac_multi_rearrange_bug():
     e = '''<div><div>A</div>B</div>'''
     #pudb.set_trace()
     with_mm([m], c, e)
-    
 
+def with_mm_file(filename):
+    mm = MacroManager()
+    mm.load_macro_file(filename)
     
+def test_mac_multi_els_with_html_bug():
+    with_mm_file("tests/macrofile1.html")
