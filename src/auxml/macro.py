@@ -2,6 +2,8 @@ from lxml import etree
 from copy import deepcopy
 from auxml.util import *
 from auxml.err import SyntaxErrorAuXML
+import auxml.parser as parser
+
 '''
 <define-macro name="blue"><span style="color: #00f"><b><contents/></b></span></define-macro>
 '''
@@ -27,7 +29,22 @@ def append_tail(el, s):
 class MacroDef():
     def __init__(self, el):        
         self.el = el
+        self.check_for_name()
         self.name = el.get("name")
+
+    def check_for_name(self):
+        if self.el.get("name") is None:
+            fileinfo = parser.el_location_info(self.el)
+            msg = f'''
+            Encountered macro definition with missing `name` attribute
+            {fileinfo}
+            
+            Suggestion: change the macro definition include a name attribute:
+            
+            <define-macro name="..."> ... </define-macro>
+                          ^^^^
+            '''
+            raise SyntaxErrorAuXML(msg)
         
     def replace_one_var(self, el, varname, valuem):
         pass
@@ -39,12 +56,15 @@ class MacroDef():
         # the following line assumes the macro body only has one element.
         # TODO let macros definition have text and elements.
         cs = self.el.getchildren()
+        fileinfo = parser.el_location_info(self.el)
         
         if len(cs) == 0:
-            raise SyntaxErrorAuXML(f"Encountered empty macro body in macro definition: `{self.name}`")
+            # maybe this should be a warning?
+            msg = f"Encountered empty macro body in macro definition: `{self.name}`, {fileinfo}"
+            raise SyntaxErrorAuXML(msg)
         
         if len(cs) > 1:
-            msg = "macro definitions may not yet have more than one element"
+            msg = f"Macro definitions may not yet have more than one element, {fileinfo}"
             raise SyntaxErrorAuXML(msg)
         
         return deepcopy(self.el.getchildren()[0])
@@ -83,8 +103,9 @@ class MacroDef():
     
     def ensure_attrs_match(self, mcall):
         for var in self.attr_vars():
-            if not mcall.contains_attr(var):                
-                raise Exception(f"Macro call: {mcall.name()} on line ... must have attribute: {var}")
+            if not mcall.contains_attr(var):
+                info = mcall.fileinfo()
+                raise SyntaxErrorAuXML(f"Macro call: {mcall.name()} on line ... must have attribute: {var} {info}")
 
 
     def replace_one_content(self, mcall, con):
@@ -196,6 +217,9 @@ class MacroCall:
         self.el = el
         self.counter = MacroCall.counter
         MacroCall.counter += 1
+
+    def fileinfo(self):
+        return parser.el_location_info(self.el)        
         
     def unique_id(self):
         return f"{self.name()}-{self.counter}"
