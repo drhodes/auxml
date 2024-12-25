@@ -33,7 +33,12 @@ def parse_html_file(fname):
     
     # mutate soup in place
     tag_els_with_info(soup, fname)
-    
+
+    escaped_html = str(soup)
+    tree = etree.fromstring(escaped_html, _xml_parser)
+    return tree
+
+def parse_string(s):
+    soup = BeautifulSoup(s, "html.parser")
     tree = etree.fromstring(str(soup), _xml_parser)
     return tree
-   

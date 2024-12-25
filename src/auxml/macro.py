@@ -87,7 +87,7 @@ class MacroDef():
         # do this.
         
         try:
-            tree = etree.fromstring("<temp>" + s + "</temp>")
+            tree = parser.parse_string("<temp>" + s + "</temp>")
             return tree.getchildren()[0]
         except Exception as e:
             print(s)
