@@ -42,3 +42,23 @@ def parse_string(s):
     soup = BeautifulSoup(s, "html.parser")
     tree = etree.fromstring(str(soup), _xml_parser)
     return tree
+
+# mutates
+def deep_rm_attr(el, attr_name):    
+    '''recursively descend through all elements removing attributes
+    with `attr_name`.'''
+    
+    if el is None:
+        return
+    
+    if attr_name in el.attrib:
+        del el.attrib[attr_name]
+        
+    for child in el:
+        deep_rm_attr(child, attr_name)
+
+
+# mutates
+def remove_debug_attrs(el):
+    deep_rm_attr(el, ATTR_FILENAME)
+    deep_rm_attr(el, ATTR_LINENUM)

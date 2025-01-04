@@ -22,8 +22,10 @@ class App():
         
         exp = mm.expand_all(fname, root)
         self.save(exp)
-
+        
+        
     def save(self, el):
+        remove_debug_attrs(el)
         open(cmdline.outfile(), 'wb').write(etree.tostring(el, method="html"))
         
 def main():
