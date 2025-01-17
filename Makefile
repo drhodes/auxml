@@ -23,10 +23,11 @@ install: .installed
 	touch .installed	
 
 run: install
+	mkdir -p /tmp/testout
 	${VENV} auxml \
-	--macros ./examples/macro-definitions/example1.xml \
-	--infile ./examples/auxml-src/example1.xml \
-	--build-dir /tmp/testout
+	-i ./examples/auxml-src/example1.xml \
+	-d /tmp/testout \
+	-m ./examples/macro-definitions/example1.xml \
 
 webpage: install
 	${VENV} auxml \

@@ -1,5 +1,7 @@
 
 def is_an_html_tag(tagname):
+    if tagname == "patchup": # ignore patchup elements.
+        return True
     return tagname.lower().strip() in HTML_TAGS
 
 HTML_TAGS = { "a",
