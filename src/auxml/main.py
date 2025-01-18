@@ -4,6 +4,7 @@ import logging
 import sys
 from auxml.cmdline import cmdline
 from auxml.macro_manager import MacroManager
+from auxml.patchup import PatchupModule
 
 from lxml import etree
 from auxml.util import *
@@ -26,47 +27,20 @@ class App():
         patched = self.patchup(expanded)
         self.save(patched)
         
-    # todo move this patchup out to a python file specified by
-    # cmdline args.
-    def patchup_one(self, expanded, el):
-    
-        def patchup_sidebar(tree, el):
-            el.tag = "div"
-            # get all page elements
-            pages = tree.xpath('//*[@class="page"]')
-            for page in pages:
-                url = f"/lectures/{page.get('path')}.html"
-                new_el = etree.Element("a", attrib={"href": url })
-                new_el.text = page.get("title")
-                div = etree.Element("div")
-                div.append(new_el)
-                el.append(div)
-            return tree
-        
-        functions = { "patchup_sidebar" : patchup_sidebar }
-
-        func_name = el.get("func")
-        if func_name is None:
-            raise Exception("patchup element must have a `func` attribute that specifies patch function: todo import this err")
-
-        if func_name not in functions:
-            raise Exception(f"patchup function not found")
-        
-        return patchup_sidebar(expanded, el)
-        
-        
 
     def patchup(self, expanded):
         # stages
         # stage1 expansion
         # stage2 patch up
-
+    
         els = expanded.xpath('//patchup')
         if len(els) == 0:
-            print("warning: no outfile tags were found, therefore no outputs files were created")
-        
+            return expanded
+
+        pm = PatchupModule(cmdline.patchup_file)
+            
         for el in els:
-            self.patchup_one(expanded, el)        
+            pm.run(expanded, el)
         return expanded
     
     def save_one_outfile(self, el):
