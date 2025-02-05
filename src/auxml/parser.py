@@ -1,3 +1,5 @@
+import sys
+import re
 from lxml import etree
 from bs4 import BeautifulSoup
 import pudb
@@ -35,9 +37,33 @@ def parse_html_file(fname):
     tag_els_with_info(soup, fname)
 
     escaped_html = str(soup)
-    tree = etree.fromstring(escaped_html, _xml_parser)
-    return tree
-
+    try:
+        tree = etree.fromstring(escaped_html, _xml_parser)
+        return tree
+    except etree.XMLSyntaxError as e:
+        error_message = str(e)
+        match = re.search(r'line (\d+), column (\d+)', error_message)
+        if match:
+            line, column = map(int, match.groups())
+            hint1 = open(fname).readlines()[line-1].strip()
+            hint2 = (column-1) * '·' + "^"
+        else:
+            line, column, hint = None, None, None
+        msg = f'''
+        Had trouble parsing some HTML
+          filename : {fname}
+          on line  : {line}
+          column   : {column}
+          
+{hint1}
+{hint2}
+        
+        '''
+        if line and column:
+            raise SyntaxError(msg)
+        else:
+            raise
+            
 def parse_string(s):
     soup = BeautifulSoup(s, "html.parser")
     tree = etree.fromstring(str(soup), _xml_parser)
