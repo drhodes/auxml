@@ -11,5 +11,10 @@ class InlineHtml():
     
     def run(self):
         fname = self.el.get("filename")
+        
+        if fname is None:
+            raise Exception("the inline-html element must have attribute: `filename`")
+            
+        
         root = parse_html_file(fname)
         return root
