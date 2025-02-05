@@ -41,16 +41,16 @@ class MacroManager():
     def is_directive(self, tag):
         return tag == "inline-html"
 
-    def run_directive(self, el):
+    def run_directive(self, fname, el):
         if el.tag not in self.directives:
             raise Exception(f"tried to run directive: {el.tag}, however it does not exist")
         d = self.directives[el.tag](el)
-        return d.run()
+        return self.expand_all(fname, d.run())
         
     
     def expand_all(self, fname, el):
         if self.is_directive(el.tag):
-            result = self.run_directive(el)
+            result = self.run_directive(fname, el)
             return result
         
         if self.cant_find(el.tag):
