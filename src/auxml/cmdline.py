@@ -1,7 +1,7 @@
 """auxml.
 
 Usage:
-  auxml [-i INFILE] [-d BUILD_DIR] [-m MACRO_FILES]... [--patchup PATCHUP_FILE]
+  auxml [-i INFILE] [-d BUILD_DIR] [-m MACRO_FILES]... [--patchup PATCHUP_FILE] [--profile]
   auxml (-h | --help)
   auxml -v
 
@@ -12,6 +12,7 @@ Options:
   -d --build-dir DIR    Specify an output build directory.
   -m --macros FILES     A list of macro files.
   --patchup FILE        Path to a python patchup script.
+  --profile
 """
 
 import os
@@ -28,6 +29,7 @@ class CmdLine():
         self.macro_files = self.args.get("--macros")
         self.build_dir = self.args.get("--build-dir")
         self.patchup_file = self.args.get("--patchup")
+        self.profiling = self.args.get("--profile")
         self.check()
      
     def check(self):

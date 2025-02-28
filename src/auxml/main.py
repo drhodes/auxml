@@ -14,6 +14,18 @@ import auxml.directive as dt
 
 class App():
     def __init__(self):
+        if cmdline.profiling:
+            import cProfile
+            import pstats
+            profiler = cProfile.Profile()
+            profiler.runcall(self.go)  # Calls self.go() properly
+            stats = pstats.Stats(profiler)
+            stats.strip_dirs().sort_stats("cumulative").print_stats(20)  # Print top 20
+
+        else:
+            self.go()
+
+    def go(self):
         mm = MacroManager()
         mm.register_directive("inline-html", dt.InlineHtml)
 
@@ -80,6 +92,6 @@ class App():
         self.save_all_outfiles(el)
 
 
-def main():
+def main():    
     App()
     
