@@ -31,7 +31,7 @@ class MacroDef():
         self.el = el
         self.check_for_name()
         self.name = el.get("name")
-
+        
     def check_for_name(self):
         if self.el.get("name") is None:
             fileinfo = parser.el_location_info(self.el)
@@ -98,8 +98,8 @@ class MacroDef():
     
     def attr_vars(self):
         if self.has_vars():
-            return [x.strip() for x in self.el.get("vars").split(",")]
-        return []
+            return tuple(sorted(x.strip() for x in self.el.get("vars").split(",")))
+        return tuple()
     
     def ensure_attrs_match(self, mcall):
         for var in self.attr_vars():
@@ -236,6 +236,10 @@ class MacroCall:
 
     def get_attr(self, attr):
         return self.el.get(attr)
+
+    # todo change this shadowing method name.
+    def vars(self):
+        return tuple(sorted(self.el.attrib.keys()))
     
     def getchildren(self):
         return self.el.getchildren()
